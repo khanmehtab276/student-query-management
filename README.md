@@ -10,6 +10,7 @@ doubts and faculty can view them.
 - API: AWS API Gateway
 - Backend: AWS Lambda (Python)
 - Database: AWS DynamoDB
+- Access Control: AWS IAM
 
 ## Features
 - Cognito authentication with JWT tokens
