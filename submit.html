@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Query</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 25px;
+            color: #667eea;
+            text-decoration: none;
+            padding: 8px 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .back-link:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: 300;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Used by addLogoutButton() in auth.js */
+        .action-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            font-weight: 500;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        #status {
+            text-align: center;
+            margin-top: 18px;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← Back</a>
+
+        <h2>Submit Query</h2>
+
+        <div id="form">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="name" placeholder="Your full name">
+            </div>
+
+            <div class="form-group">
+                <label>Roll Number</label>
+                <input type="text" id="roll" placeholder="e.g. 22CO20">
+            </div>
+
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" id="subject" placeholder="e.g. Operating Systems, DBMS, etc.">
+            </div>
+
+            <div class="form-group">
+                <label>Query</label>
+                <textarea id="query"
+                    placeholder="Describe your doubt in detail — the more context, the better the answer."></textarea>
+            </div>
+
+            <button class="submit-btn" id="submitBtn" onclick="submitQuery()">Submit Query</button>
+        </div>
+
+        <p id="status"></p>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        requireLogin();
+        addLogoutButton();
+
+        const API_URL = "https://eyegm6yt1e.execute-api.ap-south-1.amazonaws.com/my-stage/submit";
+
+        async function submitQuery() {
+            const name = document.getElementById("name").value.trim();
+            const roll = document.getElementById("roll").value.trim();
+            const subject = document.getElementById("subject").value.trim();
+            const query = document.getElementById("query").value.trim();
+            const statusEl = document.getElementById("status");
+            const submitBtn = document.getElementById("submitBtn");
+
+            // Basic client-side validation
+            if (!name || !roll || !subject || !query) {
+                statusEl.className = "error";
+                statusEl.textContent = "Please fill in all fields.";
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Submitting...";
+            statusEl.className = "";
+            statusEl.textContent = "";
+
+            try {
+                const token = getToken();
+
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify({ name, roll, subject, query })
+                });
+
+                if (res.ok) {
+                    statusEl.className = "success";
+                    statusEl.textContent = "Your doubt has been raised! Taking you to the dashboard...";
+
+                    // Clear fields
+                    ["name", "roll", "subject", "query"].forEach(id => {
+                        document.getElementById(id).value = "";
+                    });
+
+                    setTimeout(() => {
+                        window.location.href = "dashboard.html";
+                    }, 900);
+
+                } else {
+                    // Read real error message from API
+                    const errorData = await res.json().catch(() => ({}));
+                    const message = errorData.error || `Server error (${res.status})`;
+                    throw new Error(message);
+                }
+
+            } catch (err) {
+                statusEl.className = "error";
+                // Show real error instead of generic message
+                statusEl.textContent = err.message || "Couldn't submit your doubt. Please try again.";
+                console.error("Submit error:", err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Submit Query";
+            }
+        }
+    </script>
+
+</body>
+
+</html>

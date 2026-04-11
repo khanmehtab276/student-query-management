@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Query Management System</title>
+    <link rel="icon" href="data:,">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .container h2 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .container p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Shared style for buttons and links */
+        a, .action-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            font-weight: 500;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+        }
+
+        a:hover, .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            padding: 10px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            a {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Student Query Management System</h1>
+    </header>
+
+    <div class="container">
+        <h2 id="welcomeText">Hello there 👋</h2>
+        <p id="subText">Got a doubt? Raise it here — your faculty will get back to you.</p>
+        <div class="buttons">
+            <button id="loginBtn" class="action-btn" style="display:none;">Login with Cognito</button>
+            <a id="submitHref" href="submit.html" style="display:none;">Submit Query</a>
+            <a id="dashboardHref" href="dashboard.html" style="display:none;">View Queries</a>
+        </div>
+    </div>
+
+    <footer>
+        Powered by AWS Serverless
+    </footer>
+
+    <script src="auth.js"></script>
+    <script>
+        window.addEventListener("DOMContentLoaded", () => {
+            const loginBtn     = document.getElementById("loginBtn");
+            const submitHref   = document.getElementById("submitHref");
+            const dashboardHref = document.getElementById("dashboardHref");
+            const welcomeText  = document.getElementById("welcomeText");
+
+            if (isLoggedIn()) {
+                // Decode JWT to get user's email for a personal greeting
+                try {
+                    const token = getToken();
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const email = payload.email || payload["cognito:username"] || null;
+                    if (email) welcomeText.textContent = "Hey, " + email + " 👋";
+                } catch (e) {
+                    // If decoding fails, keep "Welcome" as-is
+                }
+
+                addLogoutButton();
+                submitHref.style.display   = "inline-block";
+                dashboardHref.style.display = "inline-block";
+            } else {
+                loginBtn.style.display = "inline-block";
+                loginBtn.onclick = () => login();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

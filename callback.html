@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logging you in...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .spinner {
+            width: 55px;
+            height: 55px;
+            border: 5px solid #e1e1e1;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 25px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .icon {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        h2 {
+            color: #333;
+            font-weight: 300;
+            font-size: 1.7em;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #888;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .retry-btn {
+            margin-top: 25px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            display: none;
+            transition: transform 0.2s ease;
+        }
+
+        .retry-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="spinner" id="spinner"></div>
+        <div class="icon" id="icon"></div>
+        <h2 id="title">Logging you in...</h2>
+        <p id="subtitle">Please wait while we complete your login.</p>
+        <button class="retry-btn" id="retryBtn" onclick="login()">Try Again</button>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        async function handleCallbackWithUI() {
+            const code = getCodeFromUrl();
+
+            if (code) {
+                try {
+                    const token = await exchangeCodeForToken(code);
+                    saveToken(token);
+
+                    // Clean URL
+                    window.history.replaceState({}, document.title, "/callback.html");
+
+                    document.getElementById("icon").textContent = "✅";
+                    document.getElementById("icon").style.display = "block";
+                    document.getElementById("spinner").style.display = "none";
+                    document.getElementById("title").textContent = "Login Successful!";
+                    document.getElementById("subtitle").textContent = "Redirecting you to the home page...";
+
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 900);
+
+                } catch (err) {
+                    console.error("Token exchange failed", err);
+                    showError();
+                }
+            } else {
+                showError();
+            }
+        }
+
+        function showError() {
+            document.getElementById("spinner").style.display = "none";
+            document.getElementById("icon").textContent = "⚠️";
+            document.getElementById("icon").style.display = "block";
+            document.getElementById("title").textContent = "Login Failed";
+            document.getElementById("title").style.color = "#dc3545";
+            document.getElementById("subtitle").textContent = "Something went wrong during login. Please try again.";
+            document.getElementById("retryBtn").style.display = "inline-block";
+        }
+
+        handleCallbackWithUI();
+    </script>
+</body>
+
+</html>

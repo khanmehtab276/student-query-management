@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oops! Something went wrong</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .error-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #dc3545;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+
+        p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 35px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="error-icon">⚠️</div>
+        <h1>Oops!</h1>
+        <p>Something went wrong during login. Don't worry — just try logging in again and it should be fine.</p>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="login()">Login Again</button>
+            <a href="index.html" class="btn btn-secondary">Go Home</a>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+</body>
+
+</html>

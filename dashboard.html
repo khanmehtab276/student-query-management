@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - All Queries</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.95em;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Used by addLogoutButton() in auth.js */
+        .action-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            font-weight: 500;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .refresh-btn {
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: transform 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #e1e1e1;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            color: #555;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tr:hover {
+            background: #f0f0ff;
+        }
+
+        .no-data, .loading {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Back</a>
+            <h1>All Queries</h1>
+        </header>
+
+        <div class="content">
+            <button class="refresh-btn" id="refresh">↻ Refresh Queries</button>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Roll Number</th>
+                        <th>Subject</th>
+                        <th>Query</th>
+                    </tr>
+                </thead>
+                <tbody id="table">
+                    <tr>
+                        <td colspan="4" class="loading">Loading queries...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        requireLogin();
+        addLogoutButton();
+
+        const API_URL = "https://eyegm6yt1e.execute-api.ap-south-1.amazonaws.com/my-stage/new-queries";
+
+        // XSS-safe: uses textContent instead of innerHTML for user data
+        function renderTable(data) {
+            const tbody = document.getElementById("table");
+            tbody.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 4;
+                cell.className = "no-data";
+                cell.textContent = "No doubts raised yet — be the first to ask!";
+                return;
+            }
+
+            data.forEach(item => {
+                const row = tbody.insertRow();
+
+                const fields = [item.name, item.roll, item.subject, item.query];
+                fields.forEach(value => {
+                    const cell = row.insertCell();
+                    cell.textContent = value || "";
+                });
+            });
+        }
+
+        async function loadData() {
+            const tbody = document.getElementById("table");
+            tbody.innerHTML = '<tr><td colspan="4" class="loading">Loading queries...</td></tr>';
+
+            try {
+                const res = await fetch(API_URL);
+
+                if (!res.ok) throw new Error(`HTTP status ${res.status}`);
+
+                const result = await res.json();
+
+                const data = (result.data || []).sort((a, b) => {
+                    const timeA = a.timestamp ? new Date(a.timestamp) : 0;
+                    const timeB = b.timestamp ? new Date(b.timestamp) : 0;
+                    return timeB - timeA;
+                });
+
+                renderTable(data);
+
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="4" class="no-data">Couldn\'t load queries. Check your connection and try refreshing.</td></tr>';
+            }
+        }
+
+        document.getElementById("refresh").addEventListener("click", loadData);
+        loadData();
+    </script>
+
+</body>
+
+</html>
