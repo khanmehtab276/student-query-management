@@ -199,7 +199,11 @@
             tbody.innerHTML = '<tr><td colspan="4" class="loading">Loading queries...</td></tr>';
 
             try {
-                const res = await fetch(API_URL);
+                const res = await fetch(API_URL, {
+                    headers: {
+                    	"Authorization": "Bearer " + getToken()
+                    }
+                });
 
                 if (!res.ok) throw new Error(`HTTP status ${res.status}`);
 
