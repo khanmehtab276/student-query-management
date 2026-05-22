@@ -224,8 +224,8 @@ Update `auth.js` with your Cognito credentials:
 
 ```javascript
 const config = {
-  region: 'us-east-1',
-  userPoolId: 'us-east-1_xxxxxxxxx',
+  region: 'ap-south-1',
+  userPoolId: 'ap-south-1_xxxxxxxxx',
   clientId: 'xxxxxxxxxxxxxxxxx',
   redirectUri: 'https://your-cloudfront-domain.com/callback.html',
   apiGatewayEndpoint: 'https://your-api-id.execute-api.us-east-1.amazonaws.com/prod'
